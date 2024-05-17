@@ -12,7 +12,6 @@ from model.layers import (
     CQConcatenate,
     ConditionedPredictor,
     BertEmbedding,
-    BartEmbedding,
 )
 
 
@@ -85,12 +84,6 @@ class VSLBase(nn.Module):
             # init parameters
             self.init_parameters()
             self.embedding_net = BertEmbedding(configs.text_agnostic)
-        elif configs.predictor == "bart":
-            # Project back from BART to dim.
-            self.query_affine = nn.Linear(768, configs.dim)
-            # init parameters
-            self.init_parameters()
-            self.embedding_net = BartEmbedding(configs.text_agnostic)
         else:
             self.embedding_net = Embedding(
                 num_words=configs.word_size,
@@ -121,7 +114,7 @@ class VSLBase(nn.Module):
 
     def forward(self, word_ids, char_ids, video_features, v_mask, q_mask):
         video_features = self.video_affine(video_features)
-        if self.configs.predictor == "bert" or self.configs.predictor == "bart":
+        if self.configs.predictor == "bert":
             query_features = self.embedding_net(word_ids)
             query_features = self.query_affine(query_features)
         else:
