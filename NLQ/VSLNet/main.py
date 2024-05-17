@@ -134,7 +134,7 @@ def main_vslnet(configs, parser):
                     e_labels.to(device),
                     h_labels.to(device),
                 )
-                if configs.predictor == "bert" or configs.predictor == "bart":
+                if configs.predictor == "bert":
                     word_ids = {key: val.to(device) for key, val in word_ids.items()}
                     # generate mask
                     query_mask = (
@@ -365,7 +365,7 @@ def main_vslbase(configs, parser):
                     e_labels.to(device),
                     h_labels.to(device),
                 )
-                if configs.predictor == "bert" or configs.predictor == "bart":
+                if configs.predictor == "bert":
                     word_ids = {key: val.to(device) for key, val in word_ids.items()}
                     # generate mask
                     query_mask = (
