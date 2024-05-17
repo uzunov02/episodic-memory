@@ -164,25 +164,6 @@ class BertEmbedding(nn.Module):
         return outputs["last_hidden_state"].detach()
 
 
-class BartEmbedding(nn.Module):
-    def __init__(self, text_agnostic=False):
-        super(BartEmbedding, self).__init__()
-        from transformers import BartModel, BartConfig
-
-        # Load pretrained BART model if not text_agnostic, else random BART.
-        if text_agnostic:
-            self.embedder = BartModel(BartConfig())
-        else:
-            self.embedder = BartModel.from_pretrained("bart-base-uncased")
-        # Freeze the model.
-        for param in self.embedder.parameters():
-            param.requires_grad = False
-
-    def forward(self, word_ids):
-        outputs = self.embedder(**word_ids)
-        return outputs["last_hidden_state"].detach()
-
-
 class PositionalEmbedding(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
