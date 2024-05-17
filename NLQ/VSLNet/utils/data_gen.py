@@ -50,7 +50,7 @@ class EpisodicNLQProcessor:
             for timestamp, exact_time, sentence, ann_uid, query_idx in zipper:
                 start_time = max(0.0, float(timestamp[0]) / fps)
                 end_time = min(float(timestamp[1]) / fps, duration)
-                if self._predictor != "bert" or self._predictor != "bart":
+                if self._predictor != "bert":
                     words = word_tokenize(sentence.strip().lower(), language="english")
                 else:
                     words = sentence
@@ -227,7 +227,7 @@ def dataset_gen(
     return dataset
 
 
-def dataset_gen_bert_or_bart(data, vfeat_lens, tokenizer, max_pos_len, scope, num_workers=1):
+def dataset_gen_bert(data, vfeat_lens, tokenizer, max_pos_len, scope, num_workers=1):
     # Worker method for multiprocessing.
     def worker(
         worker_data, vfeat_lens, tokenizer, max_pos_len, scope, worker_id, output_q
@@ -335,7 +335,7 @@ def gen_or_load_dataset(configs):
         from transformers import BertTokenizer, BertForPreTraining
 
         tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
-        train_set = dataset_gen_bert_or_bart(
+        train_set = dataset_gen_bert(
             train_data,
             vfeat_lens,
             tokenizer,
@@ -344,7 +344,7 @@ def gen_or_load_dataset(configs):
             num_workers=configs.num_workers,
         )
         if val_data:
-            val_set = dataset_gen_bert_or_bart(
+            val_set = dataset_gen_bert(
                 val_data,
                 vfeat_lens,
                 tokenizer,
@@ -354,47 +354,7 @@ def gen_or_load_dataset(configs):
             )
         else:
             val_set = None
-        test_set = dataset_gen_bert_or_bart(
-            test_data,
-            vfeat_lens,
-            tokenizer,
-            configs.max_pos_len,
-            "test",
-            num_workers=configs.num_workers,
-        )
-        n_val = 0 if val_set is None else len(val_set)
-        dataset = {
-            "train_set": train_set,
-            "val_set": val_set,
-            "test_set": test_set,
-            "n_train": len(train_set),
-            "n_val": n_val,
-            "n_test": len(test_set),
-        }
-    elif configs.predictor == "bart":
-        from transformers import BartTokenizer, BartForPreTraining
-
-        tokenizer = BartTokenizer.from_pretrained("bart-base-uncased")
-        train_set = dataset_gen_bert_or_bart(
-            train_data,
-            vfeat_lens,
-            tokenizer,
-            configs.max_pos_len,
-            "train",
-            num_workers=configs.num_workers,
-        )
-        if val_data:
-            val_set = dataset_gen_bert_or_bart(
-                val_data,
-                vfeat_lens,
-                tokenizer,
-                configs.max_pos_len,
-                "val",
-                num_workers=configs.num_workers,
-            )
-        else:
-            val_set = None
-        test_set = dataset_gen_bert_or_bart(
+        test_set = dataset_gen_bert(
             test_data,
             vfeat_lens,
             tokenizer,
